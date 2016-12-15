@@ -48,7 +48,7 @@ public class Experiment {
 
 	public static void main(String[] args) throws Exception {
 		NaiveBayesClassifier hc = new NaiveBayesClassifier();
-		runExperiment(hc, "data/spambase-train.arff", "data/spambase-test.arff");
+		runExperiment(hc, "data/grypa-train.arff", "data/grypa-test.arff");
 	}
 
 }

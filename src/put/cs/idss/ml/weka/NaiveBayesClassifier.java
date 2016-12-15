@@ -100,8 +100,8 @@ public class NaiveBayesClassifier extends Classifier {
 					Attribute attribute = data.attribute(i);
 			//		if (!instance.isMissing(attribute)){
 						if (attribute.isNumeric()){
-							this.m_Devs[(int)instance.classValue()][i] += (this.m_Means[(int)instance.classValue()][i]
-									- instance.value(attribute)) *  (this.m_Means[(int)instance.classValue()][i] - instance.value(attribute));
+							this.m_Devs[(int)instance.classValue()][i] += Math.pow((instance.value(attribute)       //licznik - Suma (wartosc - srednia)^2
+                                    - this.m_Means[(int)instance.classValue()][i]),2) /**  (this.m_Means[(int)instance.classValue()][i] - instance.value(attribute))*/;
 						}
 		//			}
 				}
@@ -116,7 +116,7 @@ public class NaiveBayesClassifier extends Classifier {
                         throw new Exception("attribute " + attribute.name() +": standard deviation is 0 for class " +
                                 data.classAttribute().value(j));
                     } else {
-                        this.m_Devs[j][i] /= counts[j][i][0];
+                        this.m_Devs[j][i] /= counts[j][i][0];               //mianownik - liczba prob
                         this.m_Devs[j][i] = Math.sqrt(this.m_Devs[j][i]);
                     }
                 }
@@ -129,9 +129,9 @@ public class NaiveBayesClassifier extends Classifier {
             Attribute attribute = data.attribute(i);
             if (attribute.isNominal()){
                 for (int j = 0; j < data.numClasses(); j++){
-                    sum = Utils.sum(counts[j][i]);
+                    sum = Utils.sum(counts[j][i]);                          //licznosc atrybutu w klasie (czyli tak naprawde ile razy grypa tak, ile razy nie)
                     for (int a = 0; a < attribute.numValues(); a++){
-                        counts[j][i][a] = counts[j][i][a] / sum;
+                        counts[j][i][a] = counts[j][i][a] / sum;            // pradopodobienstwo wartosci atrybutu pod warunkiem klasy
                     }
                 }
             }
@@ -140,7 +140,7 @@ public class NaiveBayesClassifier extends Classifier {
 
         sum = Utils.sum(this.class_Priors);
         for (int j = 0; j < data.numClasses(); j++)
-            this.class_Priors[j] = (this.class_Priors[j]) / sum;
+            this.class_Priors[j] = (this.class_Priors[j]) / sum;    //prawdopodobienstwo klasy
 
         this.mCounts = counts;
 	}
@@ -155,17 +155,17 @@ public class NaiveBayesClassifier extends Classifier {
                 Attribute attribute = instance.attribute(i);
                 if (!instance.isMissing(attribute)){
                     if (attribute.isNominal()){
-                        distribution[j] *= this.mCounts[j][i][(int)instance.value(attribute)];
+                        distribution[j] *= this.mCounts[j][i][(int)instance.value(attribute)];   //P(X|klasa)
                     } else {
                         distribution[j] *= normalDens(instance.value(attribute), this.m_Means[j][i], this.m_Devs[j][i]);
                     }
                 }
             }
-            distribution[j] *= this.class_Priors[j];
+            distribution[j] *= this.class_Priors[j];  //P(X|klasa) * P(klasa)
         }
 		
 		// Remember to normalize probabilities!
-        Utils.normalize(distribution);
+        Utils.normalize(distribution);          ////(P(X|klasa) * P(klasa)) / P(X) czyli przez sume licznikow dla kazdej klasy
 		
 		return distribution;    
 	}
